@@ -1,6 +1,9 @@
 package configs
 
-import "github.com/go-chi/jwtauth"
+import (
+	"github.com/go-chi/jwtauth"
+	"github.com/spf13/viper"
+)
 
 type config struct {
 	DBDriver string `mapstructure:"DB_DRIVER"`
@@ -16,6 +19,21 @@ type config struct {
 }
 
 func LoadConfig(path string) (*config, error) {
-	// todo
-	return &config{}, nil
+	var cfg config
+	viper.SetConfigFile(".env")
+	viper.SetConfigType("env")
+	viper.AddConfigPath(path)
+	viper.AutomaticEnv()
+
+	err := viper.ReadInConfig()
+	if err != nil {
+			return nil, err
+		}
+
+	err = viper.Unmarshal(&cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
 }
