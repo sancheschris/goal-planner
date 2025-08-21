@@ -1,6 +1,6 @@
 package entity
 
-import "github.com/sancheschris/goal-planner/internal/entity"
+import "github.com/sancheschris/goal-planner/pkg/entity"
 
 type Goal struct {
 	Id entity.ID `json:"id"`

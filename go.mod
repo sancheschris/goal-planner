@@ -4,6 +4,7 @@ go 1.24.2
 
 require (
 	github.com/go-chi/jwtauth v1.2.0
+	github.com/google/uuid v1.6.0
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
 	gorm.io/driver/sqlite v1.6.0
