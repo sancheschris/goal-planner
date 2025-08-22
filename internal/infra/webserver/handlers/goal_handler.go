@@ -1,0 +1,40 @@
+package handlers
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/sancheschris/goal-planner/internal/dto"
+	"github.com/sancheschris/goal-planner/internal/entity"
+	"github.com/sancheschris/goal-planner/internal/infra/database"
+)
+
+type GoalHandler struct {
+	GoalDB database.GoalInterface
+}
+
+func NewGoalHandler(db database.GoalInterface) *GoalHandler {
+	return &GoalHandler{
+		GoalDB: db,
+	}
+}
+
+func (h *GoalHandler) CreateGoal(w http.ResponseWriter, r *http.Request) {
+	var goal dto.GoalInput
+	err := json.NewDecoder(r.Body).Decode(&goal)
+	if err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+	g := entity.NewGoal(goal.Goal, goal.Status, goal.Tasks)
+	if err != nil {
+		http.Error(w, "Error creating goal", http.StatusBadRequest)
+		return
+	}
+	err = h.GoalDB.Create(g)
+	if err != nil {
+		http.Error(w, "Error saving goal", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+}
