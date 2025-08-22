@@ -27,26 +27,38 @@ func TestCreateNewGoal(t *testing.T) {
 }
 
 func TestFindAllProducts(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file:memory:"), &gorm.Config{})
-	if err != nil {
-		t.Error(err)
-	}
-	db.AutoMigrate(&entity.Goal{})
-	for i := 1; i < 5; i++ {
-		task := entity.Task{
-			Name: fmt.Sprintf("Subtask %d", i),
-			Status: "Todo",
-		}
-		goal := entity.NewGoal(fmt.Sprintf("Task %d", i), "Todo", []entity.Task{task})
-		assert.NoError(t, err)
-		db.Create(goal)
-	}
-	goalDB := NewGoal(db)
-	goals, err := goalDB.FindAll()
-	assert.NoError(t, err)
-	assert.Len(t, goals, 5)
-	assert.Equal(t, "Task 1", goals[0].Goal)
-	assert.Equal(t, "Task 2", goals[0].Goal)
+	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	if err != nil { t.Fatal(err) }
+	
+	sqlDB, _ := db.DB()
+	sqlDB.SetMaxOpenConns(1) // forces GORM’s connection pool to use only one connection
+	_ = db.Exec("PRAGMA foreign_keys = ON").Error // when you have foreign key, this enforces and makes your test closer to reality
 
+	if err := db.AutoMigrate(&entity.Goal{}, &entity.Task{}); err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 5; i++ {
+		task := entity.Task{
+			Name: fmt.Sprintf("Substask %d", i),
+			Status: "Todo",
+		}   
+		goal := entity.NewGoal(fmt.Sprintf("Task %d", i), "Todo", []entity.Task{task})
+		if err := db.Create(goal).Error; err != nil {
+			t.Fatalf("create goal %d failed: %v", i, err)
+		}
+	}
+	goalRepo := NewGoal(db)
+	goals, err := goalRepo.FindAll()
+	assert.NoError(t, err)
+	assert.NotEmpty(t, goals)
+	assert.Len(t, goals, 5)
+	
+	assert.Equal(t, "Task 0", goals[0].Goal)
+	assert.Equal(t, "Task 4", goals[4].Goal)
+
+	for _, g := range goals {
+		assert.Len(t, g.Tasks, 1)
+		assert.Contains(t, g.Tasks[0].Name, "Substask")
+	}
 }
 
