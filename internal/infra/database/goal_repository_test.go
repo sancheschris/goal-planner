@@ -26,7 +26,7 @@ func TestCreateNewGoal(t *testing.T) {
 	assert.NotEmpty(t, goal.Goal)
 }
 
-func TestFindAllProducts(t *testing.T) {
+func TestFindAllGoals(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	if err != nil { t.Fatal(err) }
 	
@@ -62,3 +62,27 @@ func TestFindAllProducts(t *testing.T) {
 	}
 }
 
+func TestUpdateGoal(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
+	if err != nil {
+		t.Error(err)
+	}
+	db.AutoMigrate(&entity.Goal{}, &entity.Task{})
+	task := entity.Task{
+			Name: "Substask",
+			Status: "Todo",
+		}   
+	goal := entity.NewGoal("Task", "Todo", []entity.Task{task})
+	assert.NoError(t, err)
+	db.Create(goal)
+	goal.Goal = "Updated Goal"
+	goal.Status = "Done"
+	goalDB := NewGoal(db)
+	err = goalDB.Update(goal)
+	assert.NoError(t, err)
+
+	updatedGoal, err := goalDB.FindById(goal.ID.String())
+	assert.NoError(t, err)
+	assert.Equal(t, "Updated Goal", updatedGoal.Goal)
+	assert.Equal(t, "Done", updatedGoal.Status)
+}
