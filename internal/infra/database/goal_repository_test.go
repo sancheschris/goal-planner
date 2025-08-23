@@ -86,3 +86,23 @@ func TestUpdateGoal(t *testing.T) {
 	assert.Equal(t, "Updated Goal", updatedGoal.Goal)
 	assert.Equal(t, "Done", updatedGoal.Status)
 }
+
+func TestGetGoal(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
+	if err != nil {
+		t.Error(err)
+	}
+	db.AutoMigrate(&entity.Goal{}, &entity.Task{})
+	task := entity.Task{
+			Name: "Substask",
+			Status: "Todo",
+		}   
+	goal := entity.NewGoal("Task", "Todo", []entity.Task{task})
+	assert.NoError(t, err)
+	db.Create(goal)
+	goalDB := NewGoal(db)
+	goal, err = goalDB.FindById(goal.ID.String())
+	assert.NoError(t, err)
+	assert.Equal(t, "Task", goal.Goal)
+	assert.Equal(t, "Todo", goal.Status)
+}
