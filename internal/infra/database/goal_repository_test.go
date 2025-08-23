@@ -68,11 +68,11 @@ func TestUpdateGoal(t *testing.T) {
 		t.Error(err)
 	}
 	db.AutoMigrate(&entity.Goal{}, &entity.Task{})
-	task := entity.Task{
-			Name: "Substask",
-			Status: "Todo",
+	tasks := []entity.Task{
+			{Name: "Substask2", Status: "Todo"},
+			    {Name: "Subtask 1", Status: "Doing"},
 		}   
-	goal := entity.NewGoal("Task", "Todo", []entity.Task{task})
+	goal := entity.NewGoal("Task", "Todo", tasks)
 	assert.NoError(t, err)
 	db.Create(goal)
 	goal.Goal = "Updated Goal"
