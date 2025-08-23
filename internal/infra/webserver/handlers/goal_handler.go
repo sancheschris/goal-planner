@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-chi/chi"
 	"github.com/sancheschris/goal-planner/internal/dto"
 	"github.com/sancheschris/goal-planner/internal/entity"
 	"github.com/sancheschris/goal-planner/internal/infra/database"
@@ -49,3 +50,23 @@ func (h *GoalHandler) FindAll(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(goals)
 }
+
+func (h *GoalHandler) GetGoal(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	goal, err := h.GoalDB.FindById(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	// If you want to include Tasks in the response, ensure that your Goal entity includes them,
+	// and that your GoalDB.FindById method populates the Tasks field.
+	// If Tasks are not being returned, check your database query and entity structure.
+
+	json.NewEncoder(w).Encode(goal)
+} 

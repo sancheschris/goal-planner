@@ -25,7 +25,7 @@ func (g *GoalRepo) FindAll() ([]entity.Goal, error) {
 
 func (g *GoalRepo) FindById(id string) (*entity.Goal, error) {
 	var goal entity.Goal
-	err := g.DB.First(&goal, "id = ?", id).Error
+	err := g.DB.Preload("Tasks").First(&goal, "id = ?", id).Error
 	return &goal, err
 }
 

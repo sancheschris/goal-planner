@@ -32,6 +32,7 @@ func main() {
 	
 	r.Post("/goals", goalHandler.CreateGoal)
 	r.Get("/goals", goalHandler.FindAll)
+	r.Get("/goals/{id}", goalHandler.GetGoal)
 
 	http.ListenAndServe(":8080", r)
 }

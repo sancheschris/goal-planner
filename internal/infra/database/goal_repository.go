@@ -6,4 +6,5 @@ type GoalInterface interface {
 	Create(goal *entity.Goal) error
 	FindAll() ([]entity.Goal, error)
 	Update(goal *entity.Goal) error
+	FindById(id string) (*entity.Goal, error)
 }
