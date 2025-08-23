@@ -8,6 +8,7 @@ import (
 	"github.com/sancheschris/goal-planner/internal/dto"
 	"github.com/sancheschris/goal-planner/internal/entity"
 	"github.com/sancheschris/goal-planner/internal/infra/database"
+	entityPkg "github.com/sancheschris/goal-planner/pkg/entity"
 )
 
 type GoalHandler struct {
@@ -66,3 +67,28 @@ func (h *GoalHandler) GetGoal(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(goal)
 } 
+
+func (h *GoalHandler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		http.Error(w, "Goal ID is required", http.StatusBadRequest)
+		return
+	}
+	var goal entity.Goal
+	err := json.NewDecoder(r.Body).Decode(&goal)
+	if err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return 
+	}
+	goal.ID, err = entityPkg.ParseID(id)
+	if err != nil {
+		http.Error(w, "Goal not found", http.StatusNotFound)
+		return
+	}
+	err = h.GoalDB.Update(&goal)
+	if err != nil {
+		http.Error(w, "Error updating goal", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}

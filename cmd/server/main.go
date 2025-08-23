@@ -13,11 +13,6 @@ import (
 )
 
 func main() {
-	// starting point
-	// configs, err := configs.LoadConfig(".")
-	// if err != nil {
-	// 	panic(err)
-	// }
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
 		panic(err)
@@ -33,6 +28,7 @@ func main() {
 	r.Post("/goals", goalHandler.CreateGoal)
 	r.Get("/goals", goalHandler.FindAll)
 	r.Get("/goals/{id}", goalHandler.GetGoal)
+	r.Put("/goals/{id}", goalHandler.UpdateGoal)
 
 	http.ListenAndServe(":8080", r)
 }
