@@ -64,9 +64,5 @@ func (h *GoalHandler) GetGoal(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	// If you want to include Tasks in the response, ensure that your Goal entity includes them,
-	// and that your GoalDB.FindById method populates the Tasks field.
-	// If Tasks are not being returned, check your database query and entity structure.
-
 	json.NewEncoder(w).Encode(goal)
 } 
