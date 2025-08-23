@@ -93,11 +93,11 @@ func TestGetGoal(t *testing.T) {
 		t.Error(err)
 	}
 	db.AutoMigrate(&entity.Goal{}, &entity.Task{})
-	task := entity.Task{
-			Name: "Substask",
-			Status: "Todo",
-		}   
-	goal := entity.NewGoal("Task", "Todo", []entity.Task{task})
+	tasks := []entity.Task{
+			{Name: "Subtask 2", Status: "Todo"},
+			    {Name: "Subtask 1", Status: "Doing"},
+		}    
+	goal := entity.NewGoal("Task", "Todo", tasks)
 	assert.NoError(t, err)
 	db.Create(goal)
 	goalDB := NewGoal(db)
@@ -105,6 +105,6 @@ func TestGetGoal(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Task", goal.Goal)
 	assert.Equal(t, "Todo", goal.Status)
-	assert.Len(t, goal.Tasks, 1)
-	assert.Equal(t, "Substask", goal.Tasks[0].Name)
+	assert.Len(t, goal.Tasks, 2)
+	assert.Equal(t, "Subtask 1", goal.Tasks[1].Name)
 }
