@@ -105,4 +105,6 @@ func TestGetGoal(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Task", goal.Goal)
 	assert.Equal(t, "Todo", goal.Status)
+	assert.Len(t, goal.Tasks, 1)
+	assert.Equal(t, "Substask", goal.Tasks[0].Name)
 }
